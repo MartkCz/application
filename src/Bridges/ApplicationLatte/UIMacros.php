@@ -35,9 +35,8 @@ final class UIMacros extends Latte\Macros\MacroSet
 		$me = new static($compiler);
 		$me->addMacro('control', [$me, 'macroControl']);
 
-		$me->addMacro('href', null, null, function (MacroNode $node, PhpWriter $writer) use ($me) {
-			return ' ?> href="<?php ' . $me->macroLink($node, $writer) . ' ?>"<?php ';
-		});
+		$me->addMacro('href', null, null, [$me, 'macroHref']);
+		$me->addMacro('phref', null, null, [$me, 'macroHref']);
 		$me->addMacro('plink', [$me, 'macroLink']);
 		$me->addMacro('link', [$me, 'macroLink']);
 		$me->addMacro('ifCurrent', [$me, 'macroIfCurrent'], '}'); // deprecated; use n:class="$presenter->linkCurrent ? ..."
@@ -107,16 +106,28 @@ final class UIMacros extends Latte\Macros\MacroSet
 
 
 	/**
+	 * n:href="destination [,] [params]"
+	 * n:phref="destination [,] [params]"
+	 */
+	public function macroHref(MacroNode $node, PhpWriter $writer)
+	{
+		return ' ?> href="<?php ' . $this->macroLink($node, $writer) . ' ?>"<?php ';
+	}
+
+
+	/**
 	 * {link destination [,] [params]}
 	 * {plink destination [,] [params]}
 	 * n:href="destination [,] [params]"
+	 * n:phref="destination [,] [params]"
 	 */
 	public function macroLink(MacroNode $node, PhpWriter $writer)
 	{
+		$presenter = Strings::startsWith($node->name, 'p');
 		$node->modifiers = preg_replace('#\|safeurl\s*(?=\||\z)#i', '', $node->modifiers);
 		return $writer->using($node)
 			->write('echo %escape(%modify('
-				. ($node->name === 'plink' ? '$this->global->uiPresenter' : '$this->global->uiControl')
+				. ($presenter ? '$this->global->uiPresenter' : '$this->global->uiControl')
 				. '->link(%node.word, %node.array?)))'
 			);
 	}

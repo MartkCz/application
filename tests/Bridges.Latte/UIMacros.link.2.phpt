@@ -84,6 +84,12 @@ link:['login']
 <a href="link:{'0':'default!','1':10,'a':20,'b':30}"></a>
 
 <a href="link:['default!#hash',10,20]"></a>
+
+<a href="plink:['Homepage:']"></a>
+
+<a href="plink:{'0':'default!','1':10,'a':20,'b':30}"></a>
+
+<a href="plink:['default!#hash',10,20]"></a>
 EOD
 
 , strtr($latte->renderToString(<<<'EOD'
@@ -116,5 +122,11 @@ EOD
 <a n:href="default! 10, 'a' => 20, 'b' => 30"></a>
 
 <a n:href="default!#hash 10, 20"></a>
+
+<a n:phref="Homepage:"></a>
+
+<a n:phref="default! 10, 'a' => 20, 'b' => 30"></a>
+
+<a n:phref="default!#hash 10, 20"></a>
 EOD
 , $params), ['&#039;' => "'"]));
